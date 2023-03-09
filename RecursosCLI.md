@@ -63,3 +63,62 @@ Para filtrar las variables según el recurso, se puede usar el siguiente comando
 ### Implementar Código Desde Github
 
     az webapp deployment source config --name $AZURE_WEB_APP --resource-group $RESOURCE_GROUP --repo-url "https://github.com/Azure-Samples/php-docs-hello-world" --branch master --manual-integration
+    
+## Ejemplos de Implementación de Recursos Con CLI
+
+### Creación MV
+
+    az vm create \
+        --resource-group learn-63db53bf-03a6-402e-b2ad-81e4f0c16b3e \
+        --name my-vm \
+        --image UbuntuLTS \
+        --admin-username azureuser \
+        --generate-ssh-keys
+        
+    az vm extension set \
+        --resource-group learn-63db53bf-03a6-402e-b2ad-81e4f0c16b3e \
+        --vm-name my-vm \
+        --name customScript \
+        --publisher Microsoft.Azure.Extensions \
+        --version 2.1 \
+        --settings '{"fileUris":["https://raw.githubusercontent.com/MicrosoftDocs/mslearn-welcome-to-azure/master/configure-nginx.sh"]}' \
+        --protected-settings '{"commandToExecute": "./configure-nginx.sh"}'
+        
+### Obtener IP y Almacenarlo en una Variable
+
+    IPADDRESS="$(az vm list-ip-addresses \
+        --resource-group learn-63db53bf-03a6-402e-b2ad-81e4f0c16b3e \
+        --name my-vm \
+        --query "[].virtualMachine.network.publicIpAddresses[*].ipAddress" \
+        --output tsv)"
+
+### Mostrar Grupos de Seguridad Asociados a la Máquina
+
+    az network nsg list \
+        --resource-group learn-63db53bf-03a6-402e-b2ad-81e4f0c16b3e \
+        --query '[].name' \
+        --output tsv
+
+## Mostrar Reglas del Grupo de Seguridad
+
+    az network nsg rule list \
+        --resource-group learn-63db53bf-03a6-402e-b2ad-81e4f0c16b3e \
+        --nsg-name my-vmNSG
+
+    az network nsg rule list \
+        --resource-group learn-63db53bf-03a6-402e-b2ad-81e4f0c16b3e \
+        --nsg-name my-vmNSG \
+        --query '[].{Name:name, Priority:priority, Port:destinationPortRange, Access:access}' \
+        --output table
+
+### Crear Reglas de Grupo de Seguridad
+
+    az network nsg rule create \
+        --resource-group learn-63db53bf-03a6-402e-b2ad-81e4f0c16b3e \
+        --nsg-name my-vmNSG \
+        --name allow-http \
+        --protocol tcp \
+        --priority 100 \
+        --destination-port-range 80 \
+        --access Allow
+       
