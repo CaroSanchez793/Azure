@@ -99,7 +99,7 @@ Para filtrar las variables según el recurso, se puede usar el siguiente comando
         --query '[].name' \
         --output tsv
 
-## Mostrar Reglas del Grupo de Seguridad
+### Mostrar Reglas del Grupo de Seguridad
 
     az network nsg rule list \
         --resource-group learn-63db53bf-03a6-402e-b2ad-81e4f0c16b3e \
